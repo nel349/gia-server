@@ -54,6 +54,16 @@ app.webhooks.on('pull_request.opened', async ({ octokit, payload }) => {
   }
 })
 
+// subscribe to issue opened and also any comments added to the issue
+app.webhooks.on('issue.opened', ({ octokit, payload }) => {
+  console.log(`Received an issue opened event for #${payload.issue.number}`)
+})
+
+// subscribe to any comments added to any issue
+app.webhooks.on('issue_comment.created', ({ octokit, payload }) => {
+  console.log(`Received an issue comment event for #${payload.issue.number}`)
+  console.log(`Comment: ${payload.comment.body}`)
+})
 // Optional: Handle errors
 app.webhooks.onError((error) => {
   if (error.name === 'AggregateError') {
