@@ -5,7 +5,7 @@
   "type": "module",
   "scripts": {
     "build": "tsc",
-    "start": "node dist/app.js",
+    "start": "tsc && node dist/app.js",
     "server": "node app.js",
     "lint": "standard"
   },
