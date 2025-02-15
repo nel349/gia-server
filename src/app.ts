@@ -4,6 +4,8 @@ import http from "node:http";
 import { Octokit, App } from "octokit";
 import { createNodeMiddleware, EmitterWebhookEvent } from "@octokit/webhooks";
 import process from "node:process";
+import { AgentResponse } from "./models/AgentResponse.ts";
+import { currentNetworkConfig } from "./configs.ts";
 
 // Load environment variables from .env file
 dotenv.config();
@@ -78,38 +80,70 @@ async function configureWebhooks() {
         });
     });
     // monitor if the comment has "@git-issue-agent"
-    app.webhooks.on("issue_comment.created", ({ octokit, payload }) => {
-      console.log(
-          `Received an issue comment event for #${payload.issue.number}`
-      );
-      console.log(`Comment: ${payload.comment.body}`);
+    app.webhooks.on("issue_comment.created", async ({ octokit, payload }) => {
+        console.log(
+            `Received an issue comment event for #${payload.issue.number}`
+        );
+        console.log(`Comment: ${payload.comment.body}`);
 
-      // Ignore comments made by the bot itself
-      if (payload.comment.user.type === "Bot") {
-          return;
+        // Ignore comments made by the bot itself
+        if (payload.comment.user.type === "Bot") {
+            return;
         }
 
         // Check for the mention and respond
-        if (payload.comment.body.includes("@git-issue-agent")) {
-            console.log("Received a comment with @git-issue-agent");
+        if (payload.comment.body.toLowerCase().includes("@gia") || payload.comment.body.toLowerCase().includes("@git-issue-agent")) {
+            console.log("Received a comment with @gia or @git-issue-agent");
 
-          // Create quoted response by adding '>' before each line
-          const originalComment = payload.comment.body;
-          const quotedComment = originalComment
-              .split("\n")
-              .map((line) => `> ${line}`)
-              .join("\n");
+            // Create quoted response by adding '>' before each line
+            const originalComment = payload.comment.body;
+            const quotedComment = originalComment
+                .split("\n")
+                .map((line) => `> ${line}`)
+                .join("\n");
 
-          const responseBody = `${quotedComment}\n\nThis is a response to the comment`;
-          // use octokit to respond to the comment
-          octokit.rest.issues.createComment({
-              owner: payload.repository.owner.login,
-              repo: payload.repository.name,
-              issue_number: payload.issue.number,
-              body: responseBody,
-          });
-      }
-  });
+            let responseMessage: AgentResponse = {
+                response: "",
+                chat_history: [],
+            };
+
+            try {
+                // make call to agent api
+                const response = await fetch(
+                    `${currentNetworkConfig.LOCAL_NETWORK_URL}/agent/chat`,
+                    {
+                        method: "POST",
+                        headers: {
+                            "Content-Type": "application/json",
+                        },
+                        body: JSON.stringify({
+                            message: originalComment,
+                            chat_history: [],
+                            initial_state: {
+                                user_name: payload.comment.user.login,
+                            },
+                        }),
+                    }
+                );
+
+                console.log("Response:", response);
+                responseMessage = (await response.json()) as AgentResponse;
+
+            } catch (error) {
+                console.error("Error calling agent API:", error);
+                responseMessage.response = `Error calling agent API: ${error}`;
+            }
+
+            const responseBody = `${quotedComment}\n\n${responseMessage.response}`;
+            // use octokit to respond to the comment
+            octokit.rest.issues.createComment({
+                owner: payload.repository.owner.login,
+                repo: payload.repository.name,
+                issue_number: payload.issue.number,
+                body: responseBody,
+            });
+        }
+    });
 
     app.webhooks.onError((error: Error & { event?: EmitterWebhookEvent }) => {
         if (error.name === "AggregateError") {
