@@ -1,15 +1,34 @@
-# Sample GitHub App
+# Git Issue Agent
 
-This sample app showcases how webhooks can be used with a GitHub App's installation token to create a bot that responds to issues. Code uses [octokit.js](https://github.com/octokit/octokit.js).
+Git issue agent helps you resolve your issues based on your code repository. It works like a Jr developer who can read your code and help you resolve your issues. It works as a product developer who can recommend changes based on your code. It works as a product manager who can help you prioritize your issues. It works as a project manager who can help you manage your issues. It works as a QA who can help you test your code. It works as a designer who can help you design your code. It works as a technical writer who can help you write your code. It works as a technical lead who can help you lead your code. It works as a senior developer who can help you develop your code.
 
 ## Requirements
 
-- Node.js 20 or higher
-- A GitHub App subscribed to **Pull Request** events and with the following permissions:
-  - Pull requests: Read & write
-  - Metadata: Read-only
-- (For local development) A tunnel to expose your local server to the internet (e.g. [smee](https://smee.io/), [ngrok](https://ngrok.com/) or [cloudflared](https://developers.cloudflare.com/cloudflare-one/connections/connect-apps/install-and-setup/tunnel-guide/local/))
-- Your GitHub App Webhook must be configured to receive events at a URL that is accessible from the internet.
+- **Node.js**: Version 20 or higher is required to run this application. You can download it from [nodejs.org](https://nodejs.org/).
+
+- **GitHub App**: You need to create a GitHub App with the following configurations:
+  - **Subscribed Events**: Ensure the app is subscribed to the following events:
+    - **Pull Request**: To handle pull request events.
+    - **Issues**: To handle issue events.
+    - **Issue Comment**: To handle comments on issues.
+  - **Permissions**:
+    - **Pull requests**: Read & write
+    - **Metadata**: Read-only
+    - **Issues**: Read & write
+
+- **Environment Variables**: Set up a `.env` file in the root of your project with the following variables:
+  - `APP_ID`: Your GitHub App's ID.
+  - `PRIVATE_KEY_PATH`: Path to your GitHub App's private key file.
+  - `WEBHOOK_SECRET`: Your GitHub App's webhook secret.
+  - `ENTERPRISE_HOSTNAME` (optional): If using GitHub Enterprise, set this to your enterprise hostname.
+  - `PORT` (optional): The port your server will listen on (default is 3000).
+
+- **Local Development Tunnel**: For local development, use a tunneling service to expose your local server to the internet. Options include:
+  - [Smee](https://smee.io/)
+  - [Ngrok](https://ngrok.com/)
+  - [Cloudflared](https://developers.cloudflare.com/cloudflare-one/connections/connect-apps/install-and-setup/tunnel-guide/local/)
+
+- **Dependencies**: Ensure all necessary npm packages are installed by running `npm install` in your project directory.
 
 ## Setup
 
