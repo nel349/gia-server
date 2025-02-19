@@ -6,6 +6,7 @@ import { createNodeMiddleware, EmitterWebhookEvent } from "@octokit/webhooks";
 import process from "node:process";
 import { AgentResponse } from "./models/AgentResponse.ts";
 import { currentNetworkConfig } from "./configs.ts";
+import { getAssociatedLinkedBranches } from "./issues/helpers.ts";
 
 // Load environment variables from .env file
 dotenv.config();
@@ -86,14 +87,45 @@ async function configureWebhooks() {
         );
         console.log(`Comment: ${payload.comment.body}`);
 
+        // Get current repository name
+        const repositoryName = payload.repository.name;
+        console.log(`Repository name: ${repositoryName}`);
+
+        // Get current branch name
+        const branchName = payload.repository.default_branch;
+        console.log(`Branch name: ${branchName}`);
+
+        // Get associated pull request
+        const associatedPullRequest = await getAssociatedLinkedBranches(
+            payload.repository.owner.login,
+            repositoryName,
+            payload.issue.number
+        );
+
+        console.log(`Associated pull request: ${associatedPullRequest}`);
+
         // Ignore comments made by the bot itself
         if (payload.comment.user.type === "Bot") {
             return;
         }
 
+        // Check for various trigger patterns
+        const triggerPatterns = [
+            "@gia",
+            "@git-issue-agent",
+            "/gia",
+            "/ask",
+            "```gia",
+        ];
+
+        const commentLower = payload.comment.body.toLowerCase();
+        const isTriggerFound = triggerPatterns.some((pattern) =>
+            commentLower.includes(pattern.toLowerCase())
+        );
+
         // Check for the mention and respond
-        if (payload.comment.body.toLowerCase().includes("@gia") || payload.comment.body.toLowerCase().includes("@git-issue-agent")) {
-            console.log("Received a comment with @gia or @git-issue-agent");
+        if (isTriggerFound) {
+            console.log("Received trigger command");
 
             // Create quoted response by adding '>' before each line
             const originalComment = payload.comment.body;
@@ -121,6 +153,7 @@ async function configureWebhooks() {
                             chat_history: [],
                             initial_state: {
                                 user_name: payload.comment.user.login,
+                                repository_name: repositoryName,
                             },
                         }),
                     }
@@ -128,7 +161,6 @@ async function configureWebhooks() {
 
                 console.log("Response:", response);
                 responseMessage = (await response.json()) as AgentResponse;
-
             } catch (error) {
                 console.error("Error calling agent API:", error);
                 responseMessage.response = `Error calling agent API: ${error}`;
