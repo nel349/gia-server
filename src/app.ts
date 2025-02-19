@@ -6,7 +6,7 @@ import { createNodeMiddleware, EmitterWebhookEvent } from "@octokit/webhooks";
 import process from "node:process";
 import { AgentResponse } from "./models/AgentResponse.ts";
 import { currentNetworkConfig } from "./configs.ts";
-import { getAssociatedLinkedBranches } from "./issues/helpers.ts";
+import { getAssociatedLinkedBranches, getWelcomeMessage } from "./issues/helpers.ts";
 
 // Load environment variables from .env file
 dotenv.config();
@@ -77,7 +77,7 @@ async function configureWebhooks() {
             owner: payload.repository.owner.login,
             repo: payload.repository.name,
             issue_number: payload.issue.number,
-            body: "This is an initial comment",
+            body: getWelcomeMessage(),
         });
     });
     // monitor if the comment has "@git-issue-agent"
@@ -115,7 +115,6 @@ async function configureWebhooks() {
             "@git-issue-agent",
             "/gia",
             "/ask",
-            "```gia",
         ];
 
         const commentLower = payload.comment.body.toLowerCase();

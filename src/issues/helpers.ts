@@ -1,6 +1,9 @@
 // Fetch associated pull requests for this issue
 import { graphql } from "@octokit/graphql";
 import process from "node:process";
+import fs from "node:fs";
+import path from "node:path";
+import { fileURLToPath } from "node:url";
 
 /**
  * Example response:
@@ -119,4 +122,17 @@ export async function getAssociatedLinkedBranches(
         console.error("Error fetching associated pull requests:", error);
         return [];
     }
+}
+
+/**
+ * Get welcome message for an issue
+ * @returns The welcome message
+ */
+export function getWelcomeMessage(): string {
+    // Update the message loading section
+    const issueWelcomeMessage: string = fs.readFileSync(
+        path.join(path.dirname(fileURLToPath(import.meta.url)), "..", "templates", "issueWelcome.md"),
+        "utf8"
+    );
+    return issueWelcomeMessage;
 }
