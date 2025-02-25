@@ -6,7 +6,7 @@ import { createNodeMiddleware, EmitterWebhookEvent } from "@octokit/webhooks";
 import process from "node:process";
 import { AgentResponse } from "./models/AgentResponse.ts";
 import { currentNetworkConfig } from "./configs.ts";
-import { getAssociatedLinkedBranches, getWelcomeMessage } from "./issues/helpers.ts";
+import { getIssueContext, getWelcomeMessage } from "./issues/helpers.ts";
 
 // Load environment variables from .env file
 dotenv.config();
@@ -92,17 +92,16 @@ async function configureWebhooks() {
         console.log(`Repository name: ${repositoryName}`);
 
         // Get current branch name
-        const branchName = payload.repository.default_branch;
-        console.log(`Branch name: ${branchName}`);
+        // const branchName = payload.repository.default_branch;
+        // console.log(`Branch name: ${branchName}`);
 
-        // Get associated pull request
-        const associatedPullRequest = await getAssociatedLinkedBranches(
+        const issueContext = await getIssueContext(
+            octokit,
             payload.repository.owner.login,
             repositoryName,
             payload.issue.number
         );
-
-        console.log(`Associated pull request: ${associatedPullRequest}`);
+        // console.log(`Issue context: ${issueContext}`);
 
         // Ignore comments made by the bot itself
         if (payload.comment.user.type === "Bot") {
@@ -153,6 +152,7 @@ async function configureWebhooks() {
                             initial_state: {
                                 user_name: payload.comment.user.login,
                                 repository_name: repositoryName,
+                                issue_context: issueContext,
                             },
                         }),
                     }

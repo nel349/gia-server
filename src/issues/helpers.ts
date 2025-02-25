@@ -4,6 +4,7 @@ import process from "node:process";
 import fs from "node:fs";
 import path from "node:path";
 import { fileURLToPath } from "node:url";
+import { Octokit } from "octokit";
 
 /**
  * Example response:
@@ -125,13 +126,71 @@ export async function getAssociatedLinkedBranches(
 }
 
 /**
+ * Construct general context for the issue which includes title,
+ * description, assignee, labels, projects, milestone linked branches, and state
+ * @param owner - The owner of the repository
+ * @param repositoryName - The name of the repository
+ * @param issueNumber - The number of the issue
+ * @returns The context for the issue
+ */
+export async function getIssueContext(
+    octokit: Octokit,
+    owner: string,
+    repositoryName: string,
+    issueNumber: number
+): Promise<string> {
+    const issue = await octokit.rest.issues.get({
+        owner,
+        repo: repositoryName,
+        issue_number: issueNumber,
+    });
+
+    console.log(`Issue data: ${JSON.stringify(issue.data, null, 2)}`);
+
+    // Get linked branches using existing function
+    const linkedBranches = await getAssociatedLinkedBranches(
+        owner,
+        repositoryName,
+        issueNumber
+    );
+
+    const context = `# Issue Context
+            Title: ${issue.data.title}
+            Issue Number: ${issue.data.number}
+            State: ${issue.data.state}
+            Created: ${issue.data.created_at}
+            Updated: ${issue.data.updated_at}
+            Labels: ${issue.data.labels
+                .map((label) => typeof label === 'object' && label.name ? label.name : '')
+                .filter(Boolean)
+                .join(", ")}
+            Assignees: ${
+                    issue.data.assignees?.map((assignee) => assignee.login).join(", ") ||
+                    "None"
+                }
+            Milestone: ${issue.data.milestone?.title || "None"}
+            Linked Branches: ${linkedBranches.join(", ") || "None"}
+
+            Description:
+            ${issue.data.body || "No description provided"}`;
+
+    return context;
+}
+
+/**
+ *
  * Get welcome message for an issue
  * @returns The welcome message
  */
 export function getWelcomeMessage(): string {
     // Update the message loading section
     const issueWelcomeMessage: string = fs.readFileSync(
-        path.join(path.dirname(fileURLToPath(import.meta.url)), "..", "templates", "issueWelcome.md"),
+        path.join(
+            path.dirname(fileURLToPath(import.meta.url)),
+            "..",
+            "templates",
+            "issueWelcome.md"
+        ),
         "utf8"
     );
     return issueWelcomeMessage;
