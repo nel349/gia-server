@@ -4,6 +4,9 @@
  */
 
 import process from "node:process";
+import dotenv from "dotenv";
+
+dotenv.config();
 
 /**
  *  This is a configuration object for the Git Issue Agent.
@@ -11,7 +14,11 @@ import process from "node:process";
  */
 const AGENT_NETWORK_CONFIG = {
     LOCAL_NETWORK_URL: process.env.LOCAL_NETWORK_URL || "http://localhost:8000",
-    GITHUB_ENTERPRISE_URL: process.env.GITHUB_ENTERPRISE_URL || "https://github.com/enterprise",
+    GITHUB_ENTERPRISE_URL: process.env.GITHUB_ENTERPRISE_URL || "",
 };
 
 export const currentNetworkConfig = AGENT_NETWORK_CONFIG;
+export const currentNetworkConfigURL =
+    AGENT_NETWORK_CONFIG.GITHUB_ENTERPRISE_URL && AGENT_NETWORK_CONFIG.GITHUB_ENTERPRISE_URL.trim() !== ""
+        ? AGENT_NETWORK_CONFIG.GITHUB_ENTERPRISE_URL
+        : AGENT_NETWORK_CONFIG.LOCAL_NETWORK_URL;

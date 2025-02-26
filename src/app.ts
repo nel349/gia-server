@@ -5,7 +5,7 @@ import { Octokit, App } from "octokit";
 import { createNodeMiddleware, EmitterWebhookEvent } from "@octokit/webhooks";
 import process from "node:process";
 import { AgentResponse } from "./models/AgentResponse.ts";
-import { currentNetworkConfig } from "./configs.ts";
+import { currentNetworkConfigURL } from "./configs.ts";
 import { getIssueContext, getWelcomeMessage } from "./issues/helpers.ts";
 
 // Load environment variables from .env file
@@ -109,12 +109,7 @@ async function configureWebhooks() {
         }
 
         // Check for various trigger patterns
-        const triggerPatterns = [
-            "@gia",
-            "@git-issue-agent",
-            "/gia",
-            "/ask",
-        ];
+        const triggerPatterns = ["@gia", "@git-issue-agent", "/gia", "/ask"];
 
         const commentLower = payload.comment.body.toLowerCase();
         const isTriggerFound = triggerPatterns.some((pattern) =>
@@ -140,7 +135,7 @@ async function configureWebhooks() {
             try {
                 // make call to agent api
                 const response = await fetch(
-                    `${currentNetworkConfig.LOCAL_NETWORK_URL}/agent/chat`,
+                    `${currentNetworkConfigURL}/agent/chat`,
                     {
                         method: "POST",
                         headers: {
