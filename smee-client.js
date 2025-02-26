@@ -14,7 +14,7 @@ if (NODE_ENV === 'development') {
   smee.start()
   console.log('Smee client started for local development')
 } else {
-  console.log("Smee client not started for production environment");
-  console.log("Set NODE_ENV=development to start the smee client");
-  console.log("Command: export NODE_ENV=development");
+  console.log('Smee client not started for production environment')
+  console.log('Set NODE_ENV=development to start the smee client')
+  console.log('Command: export NODE_ENV=development')
 }
