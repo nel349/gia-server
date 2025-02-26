@@ -36,6 +36,16 @@ const appConfig = {
 // Create an authenticated Octokit client
 const app = new App(appConfig);
 
+// Health check function
+function healthcheck() {
+    return {
+        status: 'ok',
+        uptime: process.uptime(),
+        timestamp: new Date().toISOString(),
+        version: process.env.npm_package_version || 'unknown'
+    };
+}
+
 // Configure webhook handlers
 async function configureWebhooks() {
     // Get & log the authenticated app's name
@@ -188,8 +198,21 @@ function startServer() {
 
     const middleware = createNodeMiddleware(app.webhooks, { path });
 
-    http.createServer(middleware).listen(port, () => {
+    const server = http.createServer((req, res) => {
+        // Handle healthcheck endpoint
+        if (req.url === '/healthcheck' || req.url === '/health') {
+            res.writeHead(200, { 'Content-Type': 'application/json' });
+            res.end(JSON.stringify(healthcheck()));
+            return;
+        }
+        
+        // Pass all other requests to the webhook middleware
+        middleware(req, res);
+    });
+
+    server.listen(port, () => {
         console.log(`Server is listening for events at: ${localWebhookUrl}`);
+        console.log(`Healthcheck available at: http://localhost:${port}/healthcheck`);
         console.log("Press Ctrl + C to quit.");
     });
 }
