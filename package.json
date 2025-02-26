@@ -8,6 +8,7 @@
     "start": "bun src/app.ts",
     "dev": "bun --watch src/app.ts",
     "server": "bun app.js",
+    "start:node": "node --loader ts-node/esm src/app.ts",
     "lint": "standard",
     "build": "bun build src/app.ts --outdir ./dist --target node --minify"
   },
@@ -17,12 +18,12 @@
     "nodemon": "^3.1.9",
     "smee-client": "^2.0.4",
     "standard": "^17.0.0",
-    "typescript": "^5.3.3",
-    "vite": "^4.5.6"
+    "typescript": "^5.3.3"
   },
   "dependencies": {
     "@octokit/graphql": "^8.2.1",
     "dotenv": "^16.0.3",
-    "octokit": "^3.1.2"
+    "octokit": "^3.1.2",
+    "ts-node": "^10.9.2"
   }
 }
