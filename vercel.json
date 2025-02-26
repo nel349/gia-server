@@ -20,8 +20,5 @@
       "src": "/(.*)",
       "dest": "/dist/app.js"
     }
-  ],
-  "health": {
-    "path": "/healthcheck"
-  }
+  ]
 }
