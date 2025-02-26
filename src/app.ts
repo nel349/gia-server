@@ -195,7 +195,7 @@ function startServer() {
     const port: number = parseInt(process.env.PORT || "3000", 10);
     const path: string = "/api/webhook";
     // Update this line to use the actual host from environment or default to 0.0.0.0
-    const host: string = process.env.HOST || "0.0.0.0";
+    const host: string = "0.0.0.0";
     const localWebhookUrl: string = `http://${host}:${port}${path}`;
 
     const middleware = createNodeMiddleware(app.webhooks, { path });
@@ -205,6 +205,7 @@ function startServer() {
         if (req.url === '/healthcheck' || req.url === '/health') {
             res.writeHead(200, { 'Content-Type': 'application/json' });
             res.end(JSON.stringify(healthcheck()));
+            console.log("Healthcheck endpoint hit");
             return;
         }
         
