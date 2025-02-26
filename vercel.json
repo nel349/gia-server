@@ -1,20 +1,12 @@
 {
     "version": 2,
-    "builds": [
-      {
-        "src": "src/app.ts",
-        "use": "@vercel/node",
-        "config": {
-          "nodeVersion": "20.x",
-          "includeFiles": ["src/**/*", "templates/**/*", "message.md"],
-          "buildCommand": "npm install && npm run build"
-        }
-      }
-    ],
+    "buildCommand": "curl -fsSL https://bun.sh/install | bash && ~/.bun/bin/bun install && ~/.bun/bin/bun run build",
+    "outputDirectory": "dist",
+    "framework": "bun",
     "routes": [
       {
         "src": "/(.*)",
-        "dest": "src/app.ts"
+        "dest": "app.js"
       }
     ]
   }

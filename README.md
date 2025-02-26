@@ -60,3 +60,44 @@ by major cloud providers:
 [AWS Secrets Manager](https://docs.aws.amazon.com/AWSJavaScriptSDK/v3/latest/clients/client-secrets-manager/),
 [Google Secret Manager](https://cloud.google.com/nodejs/docs/reference/secret-manager/latest),
 etc.
+
+# GitHub App with Bun
+
+This is a GitHub App built with TypeScript and Bun.
+
+## Local Development
+
+1. Install dependencies:
+```bash
+bun install
+```
+
+2. Start the development server:
+```bash
+bun dev
+```
+
+## Deployment to Vercel
+
+This project is configured to deploy to Vercel using Bun for building.
+
+### Environment Variables
+
+Make sure to set the following environment variables in your Vercel project:
+
+- `APP_ID`: Your GitHub App ID
+- `WEBHOOK_SECRET`: Your GitHub App webhook secret
+- `PRIVATE_KEY`: Your GitHub App private key (replace newlines with \n)
+- Any other environment variables your app requires
+
+### Deployment
+
+Push your changes to GitHub and connect your repository to Vercel, or use the Vercel CLI:
+
+```bash
+vercel
+```
+
+## License
+
+MIT

@@ -2,20 +2,21 @@
   "name": "starter_github_app",
   "private": true,
   "version": "0.0.1",
+  "license": "MIT",
   "type": "module",
   "scripts": {
-    "start": "node --loader ts-node/esm src/app.ts",
-    "dev": "nodemon --exec 'node --loader ts-node/esm' src/app.ts",
-    "server": "node app.js",
+    "start": "bun src/app.ts",
+    "dev": "bun --watch src/app.ts",
+    "server": "bun app.js",
     "lint": "standard",
-    "build": "node --loader ts-node/esm src/app.ts"
+    "build": "bun build src/app.ts --outdir ./dist --target node --minify"
   },
   "devDependencies": {
     "@types/node": "^22.13.4",
+    "bun-types": "^1.0.7",
     "nodemon": "^3.1.9",
     "smee-client": "^2.0.4",
     "standard": "^17.0.0",
-    "ts-node": "^10.9.2",
     "typescript": "^5.3.3",
     "vite": "^4.5.6"
   },
