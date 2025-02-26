@@ -194,7 +194,9 @@ async function configureWebhooks() {
 function startServer() {
     const port: number = parseInt(process.env.PORT || "3000", 10);
     const path: string = "/api/webhook";
-    const localWebhookUrl: string = `http://localhost:${port}${path}`;
+    // Update this line to use the actual host from environment or default to 0.0.0.0
+    const host: string = process.env.HOST || "0.0.0.0";
+    const localWebhookUrl: string = `http://${host}:${port}${path}`;
 
     const middleware = createNodeMiddleware(app.webhooks, { path });
 
@@ -210,9 +212,9 @@ function startServer() {
         middleware(req, res);
     });
 
-    server.listen(port, () => {
+    server.listen(port, host, () => {
         console.log(`Server is listening for events at: ${localWebhookUrl}`);
-        console.log(`Healthcheck available at: http://localhost:${port}/healthcheck`);
+        console.log(`Healthcheck available at: ${localWebhookUrl}/healthcheck`);
         console.log("Press Ctrl + C to quit.");
     });
 }
